@@ -13,3 +13,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
   "com.typesafe.akka" %% "akka-http" % AkkaHttpVersion
 )
+
+libraryDependencies ++= Seq(
+  "net.debasishg" %% "redisclient" % "3.42"
+)
