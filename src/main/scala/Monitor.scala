@@ -5,26 +5,65 @@ import akka.actor.typed.scaladsl.ActorContext
 import akka.actor.typed.scaladsl.Behaviors
 
 import com.redis._
+import java.util.Properties
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
+
+import scala.collection.mutable.ListBuffer
+
+import java.util.UUID
 
 
 object Actions {
 
-  def monitorRedis() = {
+  def monitorRedis(): ListBuffer[String] = {
 
-    val r = new RedisClient("localhost", 6379)
+    val r = new RedisClient("log-file-generator-data.bagybp.ng.0001.use2.cache.amazonaws.com:6379", 6379)
+
     val keys = r.keys("p-*").toList(0)
+    val values = ListBuffer[String]()
+
     keys.foreach(
+
       key => {
+
         val key_string = key.toList(0)
+
         val value = r.get(key_string) match {
           case Some(s: String) => s
           case None => ""
         }
+
         r.del(key_string)
         r.set(key_string.replaceFirst("p", "d"), value)
-        println(value)
+
+        if(value contains "WARN") values.addOne(value)
+        if(value contains "ERROR") values.addOne(value)
       }
     )
+
+    values
+  }
+
+
+  def pushToKafka(logs: Array[String]): Unit = {
+
+    val props = new Properties()
+    props.put("bootstrap.servers", "b-3.logfilegeneratorkafkac.c9jlb9.c7.kafka.us-east-2.amazonaws.com:9092,b-1.logfilegeneratorkafkac.c9jlb9.c7.kafka.us-east-2.amazonaws.com:9092,b-2.logfilegeneratorkafkac.c9jlb9.c7.kafka.us-east-2.amazonaws.com:9092")
+    props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+    props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+    props.put("acks", "all")
+
+    val producer = new KafkaProducer[String, String](props)
+
+    val topic = "test_topic"
+
+    logs.foreach(
+      log => {
+        val record = new ProducerRecord[String, String](topic, UUID.randomUUID.toString, log)
+        producer.send(record)
+      }
+    )
+
   }
 
 }
@@ -40,9 +79,14 @@ class PrintMyActorRefActor(context: ActorContext[String]) extends AbstractBehavi
 
   override def onMessage(msg: String): Behavior[String] =
     msg match {
-      case "push to kafka" =>
+      case "" =>
+        println("No matching logs found")
+        this
+      case s: String =>
         val secondRef = context.spawn(Behaviors.empty[String], "second-actor")
         println(s"Second: $secondRef - Pushing logs to Kafka topic")
+        val logs = s.split("\r\n")
+        Actions.pushToKafka(logs)
         this
     }
 }
@@ -61,8 +105,8 @@ class Main(context: ActorContext[String]) extends AbstractBehavior[String](conte
       case "check for table updates" =>
         val firstRef = context.spawn(PrintMyActorRefActor(), "first-actor")
         println(s"First: $firstRef - Checking DynamoDB for updates")
-        Actions.monitorRedis()
-        firstRef ! "push to kafka"
+        val values = Actions.monitorRedis()
+        firstRef ! values.mkString("\r\n")
         this
     }
 }

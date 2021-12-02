@@ -1,4 +1,4 @@
-name := "DynamoDBMonitor"
+name := "RedisMonitor"
 
 version := "0.1"
 
@@ -17,3 +17,5 @@ libraryDependencies ++= Seq(
 libraryDependencies ++= Seq(
   "net.debasishg" %% "redisclient" % "3.42"
 )
+
+libraryDependencies += "org.apache.kafka" % "kafka-clients" % "3.0.0"
