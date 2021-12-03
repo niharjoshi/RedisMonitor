@@ -17,7 +17,7 @@ object Actions {
 
   def monitorRedis(): ListBuffer[String] = {
 
-    val r = new RedisClient("log-file-generator-data.bagybp.ng.0001.use2.cache.amazonaws.com:6379", 6379)
+    val r = new RedisClient("log-file-generator-data.bagybp.ng.0001.use2.cache.amazonaws.com", 6379)
 
     val keys = r.keys("p-*").toList(0)
     val values = ListBuffer[String]()
@@ -55,14 +55,18 @@ object Actions {
 
     val producer = new KafkaProducer[String, String](props)
 
-    val topic = "test_topic"
+    val topic = "test-topic"
 
     logs.foreach(
       log => {
         val record = new ProducerRecord[String, String](topic, UUID.randomUUID.toString, log)
-        producer.send(record)
+        val res = producer.send(record).get()
+        println(res)
+        producer.flush()
       }
     )
+
+    producer.close()
 
   }
 
@@ -104,7 +108,7 @@ class Main(context: ActorContext[String]) extends AbstractBehavior[String](conte
     msg match {
       case "check for table updates" =>
         val firstRef = context.spawn(PrintMyActorRefActor(), "first-actor")
-        println(s"First: $firstRef - Checking DynamoDB for updates")
+        println(s"First: $firstRef - Checking Redis for updates")
         val values = Actions.monitorRedis()
         firstRef ! values.mkString("\r\n")
         this
