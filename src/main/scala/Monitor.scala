@@ -52,6 +52,7 @@ object Actions {
     props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
     props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
     props.put("batch.size", 1)
+    props.put("linger.ms", 100)
 
     val producer = new KafkaProducer[String, String](props)
 
