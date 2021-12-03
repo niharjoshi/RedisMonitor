@@ -1,7 +1,7 @@
 FROM hseeberger/scala-sbt:graalvm-ce-21.3.0-java17_1.5.5_3.1.0
 
-WORKDIR /LogFileGeneratorDeployment
+WORKDIR /RedisMonitor
 
-ADD . /LogFileGeneratorDeployment
+ADD . /RedisMonitor
 
-CMD ["/bin/bash", "runGenerator.sh"]
+CMD ["/bin/bash", "runMonitor.sh"]
