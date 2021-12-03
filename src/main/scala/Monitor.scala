@@ -51,22 +51,16 @@ object Actions {
     props.put("bootstrap.servers", "b-3.logfilegeneratorkafkac.c9jlb9.c7.kafka.us-east-2.amazonaws.com:9092,b-1.logfilegeneratorkafkac.c9jlb9.c7.kafka.us-east-2.amazonaws.com:9092,b-2.logfilegeneratorkafkac.c9jlb9.c7.kafka.us-east-2.amazonaws.com:9092")
     props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
     props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-    props.put("request.timeout.ms", "15000")
-    props.put("batch.size", "5")
-    props.put("linger.ms", "0")
 
     val producer = new KafkaProducer[String, String](props)
 
     val topic = "logs"
 
-    println("Starting Kafka push")
-
     try {
       logs.foreach(
         log => {
           val record = new ProducerRecord[String, String](topic, UUID.randomUUID.toString, log)
-          val res = producer.send(record).get()
-          println(res)
+          producer.send(record).get()
           producer.flush()
         }
       )
