@@ -57,16 +57,22 @@ object Actions {
 
     val topic = "test-topic"
 
-    logs.foreach(
-      log => {
-        val record = new ProducerRecord[String, String](topic, UUID.randomUUID.toString, log)
-        val res = producer.send(record).get()
-        println(res)
-        producer.flush()
-      }
-    )
+    println("Starting Kafka push")
 
-    producer.close()
+    try {
+      logs.foreach(
+        log => {
+          val record = new ProducerRecord[String, String](topic, UUID.randomUUID.toString, log)
+          val res = producer.send(record).get()
+          println(res)
+          producer.flush()
+        }
+      )
+    }catch {
+      case e: Exception => e.printStackTrace()
+    }finally {
+      producer.close()
+    }
 
   }
 
