@@ -93,6 +93,7 @@ class PrintMyActorRefActor(context: ActorContext[String]) extends AbstractBehavi
         println(s"Second: $secondRef - Pushing logs to Kafka topic")
         val logs = s.split("\r\n")
         Actions.pushToKafka(logs)
+        context.spawn(Main(), "first-actor")
         context.stop(secondRef)
         this
     }
