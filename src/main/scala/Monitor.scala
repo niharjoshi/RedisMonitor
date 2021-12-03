@@ -63,7 +63,7 @@ object Actions {
     try {
       logs.foreach(
         log => {
-          val record = new ProducerRecord[String, String](topic, UUID.randomUUID.toString, log)
+          val record = new ProducerRecord[String, String](topic, "", log.mkString)
           val res = producer.send(record).get()
           println(res)
           producer.flush()
