@@ -19,3 +19,7 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies += "org.apache.kafka" % "kafka-clients" % "3.0.0"
+
+libraryDependencies += "com.typesafe" % "config" % "1.4.1"
+
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9"
