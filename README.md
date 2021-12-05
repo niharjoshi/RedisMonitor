@@ -183,6 +183,7 @@ bin/kafka-console-consumer.sh --topic logs --from-beginning --bootstrap-server l
 ```
 
 Sample output:
+
 ![Alt text](doc/kafka-logs.png?raw=true "Kafka Logs")
 
 ---
