@@ -207,7 +207,7 @@ The Spark application batches the consumed logs and subsequently sends email ale
 
 ### **Project Component 2 Design**
 
-When we run the Redis monitor, our first Akka actor periodically probes the Redis DB for logs with keys starting with **p-**. These keys refer to the keys that have not been processed yet.
+When we run the Redis monitor, our first Akka actor periodically probes the Redis DB for logs with keys starting with **p-**. These keys refer to the keys that have not been processed yet. Notice how all the logs are of type **p-***.
 
 ![Alt text](doc/logs-in-redis.png?raw=true "Logs In Redis")
 
