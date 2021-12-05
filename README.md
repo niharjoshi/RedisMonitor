@@ -215,6 +215,8 @@ Next, it gets the values of these keys and checks for **WARN** or **ERROR** log 
 
 Before transferring the execution to the second Akka actor, the first Akka actor changes the keys for all processed logs from **p-** to **d-** indicating that the processing is complete.
 
+![Alt text](doc/logs-in-redis-modified.png?raw=true "Modified Logs In Redis")
+
 The monitor then invokes the second Akka actor which simply passes on the logs supplied by the first Akka actor to the Kafka topic. Notice how each log is either of type **WARN** or **ERROR**.
 
 ![Alt text](doc/kafka-logs.png?raw=true "Kafka Logs")
